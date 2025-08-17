@@ -1,9 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status-codes";
-import { JwtPayload } from "jsonwebtoken";
-import { envVars } from "../../config/env";
 import { catchAsync } from "../../utils/catchAsync";
-import { verifyToken } from "../../utils/jwt";
 import { sendResponse } from "../../utils/sendResponse";
 import { UserService } from "./user.service";
 
@@ -27,7 +24,7 @@ import { UserService } from "./user.service";
 
 const createUser = catchAsync(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async (req: Request, res: Response,next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     const user = await UserService.createUser(req.body);
 
     // res.status(httpStatus.CREATED).json({
@@ -48,11 +45,12 @@ const updateUser = catchAsync(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.params.id;
-    const token = req.headers.authorization;
-    const verifiedToken = verifyToken(
-      token as string,
-      envVars.JWT_ACCESS_SECRET
-    ) as JwtPayload;
+    // const token = req.headers.authorization;
+    // const verifiedToken = verifyToken(
+    //   token as string,
+    //   envVars.JWT_ACCESS_SECRET
+    // ) as JwtPayload;
+    const verifiedToken = req.user;
     const payload = req.body;
     const user = await UserService.updatedUser(userId, payload, verifiedToken);
 
