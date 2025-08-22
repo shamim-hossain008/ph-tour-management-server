@@ -13,13 +13,18 @@ router.post(
   checkAuth(...Object.values(Role)),
   AuthControllers.resetPassword
 );
+
+// /booking -> login -> successful google login ->booking frontend or
+// "/login" -> successful google login -> "/frontend"
 router.get(
   "/google",
   async (req: Request, res: Response, next: NextFunction) => {
-    passport.authenticate("google", { scope: ["profile", "email"] })(req, res,next);
+    const redirect= req.query.redirect || "/"
+    passport.authenticate("google", { scope: ["profile", "email"],state:redirect as string})(req, res,next);
   }
 );
 
+// api/v1/auth/google/callback?booking 
 router.get("/google/callback",passport.authenticate("google",{failureRedirect:"/login"}), AuthControllers.googleCallbackController)
 
 export const AuthRoutes = router;
