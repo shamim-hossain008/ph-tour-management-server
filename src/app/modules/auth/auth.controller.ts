@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
+import passport from "passport";
 import { envVars } from "../../config/env";
 import AppError from "../../errorHelpers/appError";
 import { catchAsync } from "../../utils/catchAsync";
@@ -12,7 +13,8 @@ import { AuthServices } from "./auth.service";
 const credentialsLogin = catchAsync(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async (req: Request, res: Response, next: NextFunction) => {
-    const loginInfo = await AuthServices.credentialsLogin(req.body);
+    passport.authenticate();
+    // const loginInfo = await AuthServices.credentialsLogin(req.body);
     // for save access token in cookies
     // res.cookie("accessToken", loginInfo.accessToken, {
     //   httpOnly: true,
