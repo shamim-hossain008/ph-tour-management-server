@@ -20,7 +20,8 @@ router.get(
 );
 // updater user route -> /api/v1/user/:id
 router.patch(
-  "/:id",validateRequest(updatedUserZodSchema),
+  "/:id",
+  validateRequest(updatedUserZodSchema),
   checkAuth(...Object.values(Role)),
   UserControllers.updateUser
 );

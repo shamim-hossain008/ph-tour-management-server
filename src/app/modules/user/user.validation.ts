@@ -1,5 +1,5 @@
 import z from "zod";
-import { IsActive, Role } from "./user.interface";
+import { Role } from "./user.interface";
 
 export const createUserZodSchema = z.object({
   name: z
@@ -70,7 +70,10 @@ export const updatedUserZodSchema = z.object({
     .enum(Object.values(Role) as [string])
     .optional(),
 
-  isActive: z.enum(Object.values(IsActive)).optional(),
+  isActive: z
+    .enum(["active", "inactive", "blocked"])
+    .default("active")
+    .optional(),
 
   isDelete: z
     .boolean()
