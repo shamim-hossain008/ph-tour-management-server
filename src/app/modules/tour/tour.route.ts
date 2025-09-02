@@ -5,17 +5,41 @@ import { Role } from "../user/user.interface";
 import { TourController } from "./tour.controller";
 import {
   createTourTypeZodSchema,
+  createTourZodSchema,
   updateTourZodSchema,
 } from "./tour.validation";
 
 const router = Router();
+
+/****---------Tour type routes-----****/
+router.post(
+  "/create-tour-type",
+  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+  validateRequest(createTourTypeZodSchema),
+  TourController.createTourType
+);
+
+router.get("/tour-types", TourController.getAllTourTypes);
+
+router.patch(
+  "/tour-types/:id",
+  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+  validateRequest(createTourTypeZodSchema),
+  TourController.updateTourType
+);
+
+router.delete(
+  "/tour-types/:id",
+  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+  TourController.deleteTourType
+);
 
 /****---------Tour routes-----****/
 
 router.post(
   "/create",
   checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
-  validateRequest(createTourTypeZodSchema),
+  validateRequest(createTourZodSchema),
   TourController.createTour
 );
 router.get("/", TourController.getAllTours);
@@ -33,4 +57,4 @@ router.delete(
   TourController.deleteTour
 );
 
-export const DivisionRoutes = router;
+export const TourRoutes = router;

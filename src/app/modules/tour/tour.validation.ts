@@ -1,4 +1,4 @@
-import z from "zod";
+import { z } from "zod";
 
 export const createTourZodSchema = z.object({
   title: z.string(),
@@ -35,6 +35,7 @@ export const updateTourZodSchema = z.object({
   minAge: z.number().optional(),
   departureLocation: z.string().optional(),
   arrivalLocation: z.string().optional(),
+  division: z.string().optional(),
 });
 
 export const createTourTypeZodSchema = z.object({
