@@ -3,6 +3,7 @@ import { Server } from "http";
 import mongoose from "mongoose";
 import app from "./app";
 import { envVars } from "./app/config/env";
+import { seedSuperAdmin } from "./app/utils/seedSuperAdmin";
 
 let server: Server;
 
@@ -12,14 +13,17 @@ const startServer = async () => {
     console.log("✅ Connected to mongoose successfully");
 
     server = app.listen(envVars.PORT, () => {
-      console.log(`Server is listening to port 5070 ${envVars.PORT}`);
+      console.log(`Server is listening to port: ${envVars.PORT}`);
     });
   } catch (error) {
     console.log(error);
   }
 };
 
-startServer();
+(async () => {
+  await startServer();
+  await seedSuperAdmin();
+})();
 
 process.on("unhandledRejection", (err) => {
   console.log("Unhandled Rejection detected...Server shutting down...", err);
