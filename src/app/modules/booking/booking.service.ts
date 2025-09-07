@@ -1,11 +1,11 @@
 import httpStatus from "http-status-codes";
 import AppError from "../../errorHelpers/appError";
 import { PAYMENT_STATUS } from "../payment/payment.interface";
+import { Payment } from "../payment/payment.model";
 import { Tour } from "../tour/tour.model";
 import { User } from "../user/user.model";
 import { BOOKING_STATUS, IBooking } from "./booking.interface";
 import { Booking } from "./booking.model";
-import { Payment } from "../payment/payment.model";
 
 const getTransactionId = () => {
   return `tran_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
@@ -32,6 +32,7 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
     if (!tour?.constFrom) {
       throw new AppError(httpStatus.BAD_REQUEST, "Not Tour Cost Found");
     }
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const amount = Number(tour.constFrom) * Number(payload.guestCount!);
 
     const booking = await Booking.create(
@@ -42,6 +43,7 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
           ...payload,
         },
       ],
+
       { session }
     );
 
@@ -54,25 +56,32 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
           amount: amount,
         },
       ],
-      { session }
-    ); 
-    const updatedBooking = await Booking.findByIdAndUpdate(booking[0]._id,
-        {payment:payment[0]._id},
-        {new:true, runValidators:true, session}
-    ) 
-    .populate("user", "name email phone address")
-    .populate("tour", "title costFrom")
-    .populate("payment")
 
-    const userAddress = (updatedBooking?.user as any).address 
-    const userEmail = (updatedBooking?.user as nay).email 
-    const userPhoneNumber = (updatedBooking?.user as any).phone
-    const userName = (updatedBooking?.user as any).name 
+      { session }
+    );
+    const updatedBooking = await Booking.findByIdAndUpdate(
+      booking[0]._id,
+      { payment: payment[0]._id },
+      { new: true, runValidators: true, session }
+    )
+      .populate("user", "name email phone address")
+      .populate("tour", "title costFrom")
+      .populate("payment");
+
+    const userAddress = (updatedBooking?.user as any).address;
+    const userEmail = (updatedBooking?.user as nay).email;
+    const userPhoneNumber = (updatedBooking?.user as any).phone;
+    const userName = (updatedBooking?.user as any).name;
 
     // todo
+    await session.commitTransaction(); //transaction
+    session.endSession();
+
+    return updatedBooking;
   } catch (error) {
-    await session.endSession()
-    throw error
+    await session.abortTransaction(); //Rollback
+    session.endSession();
+    throw error;
   }
 };
 const getUserBookings = async () => {
@@ -92,9 +101,9 @@ const getAllBookings = async () => {
 };
 
 export const BookingService = {
-    createBooking,
-    getUserBookings,
-    getBookingById,
-    updateBookingStatus,
-    getAllBookings
-}
+  createBooking,
+  getUserBookings,
+  getBookingById,
+  updateBookingStatus,
+  getAllBookings,
+};
