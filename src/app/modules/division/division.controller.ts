@@ -1,12 +1,21 @@
 import { Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
+import { IDivision } from "./division.interface";
 import { DivisionService } from "./division.service";
 
 // create division
 const createDivision = catchAsync(async (req: Request, res: Response) => {
+  // console.log({
+  //   file: req.file,
+  //   body: req.body,
+  // });
 
-  const result = await DivisionService.createDivision(req.body);
+  const payload: IDivision = {
+    ...req.body,
+    thumbnail: req.file?.path,
+  };
+  const result = await DivisionService.createDivision(payload);
 
   sendResponse(res, {
     statusCode: 201,
@@ -18,8 +27,10 @@ const createDivision = catchAsync(async (req: Request, res: Response) => {
 
 // get all divisions
 const getAllDivisions = catchAsync(async (req: Request, res: Response) => {
-  const query = req.query 
-  const result = await DivisionService.getAllDivisions(query as Record<string, string>);
+  const query = req.query;
+  const result = await DivisionService.getAllDivisions(
+    query as Record<string, string>
+  );
 
   sendResponse(res, {
     statusCode: 200,

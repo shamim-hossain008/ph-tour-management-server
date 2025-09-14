@@ -4,6 +4,7 @@ export const validateRequest =
   (zodSchema: ZodObject<ZodRawShape>) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      req.body = JSON.parse(req.body.data) || req.body;
       req.body = await zodSchema.parseAsync(req.body);
 
       next();
