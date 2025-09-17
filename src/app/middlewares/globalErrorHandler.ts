@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
+import { deleteFromCloudinary } from "../config/cloudinary.config";
 import { envVars } from "../config/env";
 import AppError from "../errorHelpers/appError";
 import { handlerCastError } from "../helpers/handleCastError";
@@ -10,7 +11,7 @@ import { handleValidationError } from "../helpers/handlerValidationError";
 import { handlerZodError } from "../helpers/handlerZodError";
 import { TErrorSources } from "../interfaces/error.types";
 
-export const globalErrorHandler = (
+export const globalErrorHandler = async (
   err: any,
   req: Request,
   res: Response,
@@ -18,6 +19,19 @@ export const globalErrorHandler = (
 ) => {
   if (envVars.NODE_ENV === "development") {
     console.log(err);
+  }
+
+  // delete single image form cloudinary(catch error)
+  if (req.file) {
+    await deleteFromCloudinary(req.file.path);
+  }
+  // delete multi image (catch error)
+  if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+    const imageUrls = (req.files as Express.Multer.File[]).map(
+      (file) => file.path
+    );
+
+    await Promise.all(imageUrls.map((url) => deleteFromCloudinary(url)));
   }
 
   let errorSources: TErrorSources[] = [];
