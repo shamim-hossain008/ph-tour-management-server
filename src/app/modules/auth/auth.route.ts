@@ -23,7 +23,9 @@ router.post(
   "/set-password",
   checkAuth(...Object.values(Role)),
   AuthControllers.setPassword
-);
+); 
+
+router.post("/forget-password", checkAuth(...Object.values(Role)), AuthControllers.forgetPassword)
 
 // /booking -> login -> successful google login ->booking frontend or
 // "/login" -> successful google login -> "/frontend"
