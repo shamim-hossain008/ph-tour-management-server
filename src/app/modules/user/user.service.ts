@@ -3,6 +3,8 @@ import httpStatus from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../../config/env";
 import AppError from "../../errorHelpers/appError";
+import { QueryBuilder } from "../../utils/QueryBuilder";
+import { userSearchableFields } from "./user.constant";
 import { IAuthProvider, IUser, Role } from "./user.interface";
 import { User } from "./user.model";
 
@@ -12,9 +14,9 @@ const createUser = async (payload: Partial<IUser>) => {
 
   // check user by email
   const isUserExist = await User.findOne({ email });
-  // if (isUserExist) {
-  //   throw new AppError(httpStatus.BAD_REQUEST, "Email already exists");
-  // }
+  if (isUserExist) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Email already exists");
+  }
   //  password hashing
   const hashedPassword = await bcryptjs.hash(
     password as string,
@@ -91,16 +93,39 @@ const updatedUser = async (
 
 // get all user
 
-const getAllUsers = async () => {
-  const users = await User.find({});
+const getAllUsers = async (query: Record<string, string>) => {
+  // const users = await User.find({});
+  // const totalUsers = await User.countDocuments();
 
-  const totalUsers = await User.countDocuments();
+  const queryBuilder = new QueryBuilder(User.find(), query);
+  const usersData = queryBuilder
+    .filter()
+    .search(userSearchableFields)
+    .sort()
+    .fields()
+    .paginate();
+
+  const [data, meta] = await Promise.all([
+    usersData.build(),
+    queryBuilder.getMeta(),
+  ]);
 
   return {
-    data: users,
-    meta: {
-      totalUsers,
-    },
+    data,
+    meta,
+  };
+};
+// get single user
+const getSingleUser = async (id: string) => {
+  const user = await User.findById(id).select("-password");
+  return {
+    data: user,
+  };
+};
+const getMe = async (userId: string) => {
+  const user = await User.findById(userId).select("-password");
+  return {
+    data: user,
   };
 };
 
@@ -108,6 +133,8 @@ export const UserService = {
   createUser,
   getAllUsers,
   updatedUser,
+  getSingleUser,
+  getMe,
 };
 
 // route matching -> controller -> service -> model -> DB

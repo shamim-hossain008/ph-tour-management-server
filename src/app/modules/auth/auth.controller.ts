@@ -18,7 +18,7 @@ const credentialsLogin = catchAsync(
     passport.authenticate("local", async (err: any, user: any, info: any) => {
       if (err) {
         // return next(err);
-        return next(new AppError(401, err));
+        return next(new AppError(err.statusCode || 401, err.message));
       }
 
       if (!user) {
@@ -114,9 +114,9 @@ const setPassword = catchAsync(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async (req: Request, res: Response, next: NextFunction) => {
     const decodedToken = req.user as JwtPayload;
-    const {password} = req.body
+    const { password } = req.body;
 
-    await AuthServices.setPassword(decodedToken.userId,password);
+    await AuthServices.setPassword(decodedToken.userId, password);
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.OK,
