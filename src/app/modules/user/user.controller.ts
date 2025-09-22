@@ -76,7 +76,8 @@ const updateUser = catchAsync(
 // Get All user
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
-  const result = await UserService.getAllUsers();
+  const query = req.query;
+  const result = await UserService.getAllUsers(query as Record<string, string>);
 
   // res.status(httpStatus.OK).json({
   //   success: true,
@@ -93,8 +94,41 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   });
 };
 
+// get me
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const getMe = catchAsync(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async (req: Request, res: Response, next: NextFunction) => {
+    const decodedToken = req.user as JwtPayload;
+    const result = await UserService.getMe(decodedToken.userId);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.CREATED,
+      message: "Your profile Retrieved Successfully",
+      data: result.data,
+    });
+  }
+);
+const getSingleUser = catchAsync(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async (req: Request, res: Response, next: NextFunction) => {
+    const id = req.params.id;
+    const result = await UserService.getSingleUser(id);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.CREATED,
+      message: "User Retrieved Successfully",
+      data: result.data,
+    });
+  }
+);
+
 export const UserControllers = {
   createUser,
   getAllUsers,
   updateUser,
+  getSingleUser,
+  getMe,
 };

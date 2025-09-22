@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from "express";
+import httpStatus from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../config/env";
 import AppError from "../errorHelpers/appError";
-import { verifyToken } from "../utils/jwt";
-import  httpStatus  from 'http-status-codes';
-import { User } from "../modules/user/user.model";
 import { IsActive } from "../modules/user/user.interface";
+import { User } from "../modules/user/user.model";
+import { verifyToken } from "../utils/jwt";
 
 export const checkAuth =
   (...authRoles: string[]) =>
@@ -16,7 +16,7 @@ export const checkAuth =
       if (!accessToken) {
         throw new AppError(403, "No token received");
       }
-      // 
+      //
       const verifiedToken = verifyToken(
         accessToken,
         envVars.JWT_ACCESS_SECRET
@@ -28,6 +28,9 @@ export const checkAuth =
 
       if (!isUserExist) {
         throw new AppError(httpStatus.BAD_REQUEST, "User dose not exist");
+      }
+      if (!isUserExist.isVerified) {
+        throw new AppError(httpStatus.BAD_REQUEST, "User is not verified");
       }
 
       if (

@@ -1,3 +1,4 @@
+import { deleteFromCloudinary } from "../../config/cloudinary.config";
 import { QueryBuilder } from "../../utils/QueryBuilder";
 import { divisionSearchableFields } from "./division.constant";
 import { IDivision } from "./division.interface";
@@ -26,24 +27,23 @@ const createDivision = async (payload: IDivision) => {
 };
 
 // const get All Division
-const getAllDivisions = async (query:Record<string, string>) => {
-  const queryBuilder = new QueryBuilder(Division.find(),query)
-  
-  const divisionsData = queryBuilder
-  .search(divisionSearchableFields)
-  .filter()
-  .sort()
-  .fields()
-  .paginate()
+const getAllDivisions = async (query: Record<string, string>) => {
+  const queryBuilder = new QueryBuilder(Division.find(), query);
 
+  const divisionsData = queryBuilder
+    .search(divisionSearchableFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate();
 
   const [data, meta] = await Promise.all([
     divisionsData.build(),
-    queryBuilder.getMeta()
-  ])
+    queryBuilder.getMeta(),
+  ]);
   return {
     data,
-    meta
+    meta,
   };
 };
 
@@ -87,6 +87,10 @@ const updateDivision = async (id: string, payload: Partial<IDivision>) => {
     new: true,
     runValidators: true,
   });
+
+  if (payload.thumbnail && existingDivision.thumbnail) {
+    await deleteFromCloudinary(existingDivision.thumbnail);
+  }
 
   return updateDivision;
 };
