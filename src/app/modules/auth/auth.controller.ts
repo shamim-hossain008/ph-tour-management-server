@@ -195,6 +195,21 @@ const googleCallbackController = catchAsync(
   }
 );
 
+const forgetPassword = catchAsync(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { email } = req.body;
+
+    await AuthServices.forgetPassword(email);
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: " Email send Successfully",
+      data: null,
+    });
+  }
+);
+
 export const AuthControllers = {
   credentialsLogin,
   getNewAccessToken,
@@ -203,4 +218,5 @@ export const AuthControllers = {
   setPassword,
   changePassword,
   googleCallbackController,
+  forgetPassword,
 };
